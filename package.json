@@ -1,0 +1,20 @@
+{
+  "name": "joinr",
+  "version": "0.1.0",
+  "description": "Joins related documents to MongoDB documents efficiently",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boutell/joinr.git"
+  },
+  "keywords": [
+    "MongoDB",
+    "join",
+    "database"
+  ],
+  "author": "P'unk Avenue",
+  "license": "MIT"
+}
