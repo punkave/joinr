@@ -8,6 +8,12 @@
 
 `joinr` emphasizes performance. Fetch the relevant documents first; that gives you a chance to `limit` the results. Then use `joinr` to fetch related documents with a single MongoDB query.
 
+## Installation
+
+    npm install joinr
+
+Tip: we recommend `--save` so that `joinr` is automatically added to your `package.json`.
+
 ## Quick Example
 
     var joinr = require('joinr');
