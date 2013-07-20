@@ -4,7 +4,7 @@
 
 `joinr` makes it easy to fetch related documents when working with MongoDB collections, or documents in a similar database.
 
-`joinr` and allows joins to be performed via IDs stored in a regular property (`byOne`) or in an array property (`byArray`). Joins can be performed when the ID of the related document is in the document you already have (`byOne` or `byArray`) and also when the related documents contain the IDs of documents you already have (`byOneReverse` and `byArrayReverse`).
+`joinr` allows joins to be performed via IDs stored in a regular property (`byOne`) or in an array property (`byArray`). Joins can be performed when the ID of the related document is in the document you already have (`byOne` or `byArray`) and also when the related documents contain the IDs of documents you already have (`byOneReverse` and `byArrayReverse`).
 
 `joinr` emphasizes performance. Fetch the relevant documents first; that gives you a chance to `limit` the results. Then use `joinr` to fetch related documents with a single MongoDB query.
 
