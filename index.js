@@ -1,6 +1,6 @@
 var _ = require('underscore');
 
-module.exports = {
+var joinr = module.exports = {
   // Perform a one-to-one join with related documents.
   //
   // If you have events and wish to bring a place object into a ._place property
@@ -31,8 +31,8 @@ module.exports = {
     var otherIds = [];
     var othersById = {};
     _.each(items, function(item) {
-      if (item[idField]) {
-        otherIds.push(item[idField]);
+      if (joinr._has(item, idField)) {
+        otherIds.push(joinr._get(item, idField));
       }
     });
     if (otherIds.length) {
@@ -46,7 +46,7 @@ module.exports = {
         });
         // Attach the others to the items
         _.each(items, function(item) {
-          var id = item[idField];
+          var id = joinr._get(item, idField);
           if (id && othersById[id]) {
             item[objectField] = othersById[id];
           }
@@ -102,8 +102,8 @@ module.exports = {
         });
         // Attach the others to the items
         _.each(others, function(other) {
-          if (other[idField]) {
-            var id = other[idField];
+          if (joinr._has(other, idField)) {
+            var id = joinr._get(other, idField);
             if (itemsById[id]) {
               var item = itemsById[id];
               if (!item[objectsField]) {
@@ -154,8 +154,8 @@ module.exports = {
     var otherIds = [];
     var othersById = {};
     _.each(items, function(item) {
-      if (item[idsField]) {
-        otherIds = otherIds.concat(item[idsField]);
+      if (joinr._has(item, idsField)) {
+        otherIds = otherIds.concat(joinr._get(item, idsField));
       }
     });
     if (otherIds.length) {
@@ -169,7 +169,7 @@ module.exports = {
         });
         // Attach the others to the items
         _.each(items, function(item) {
-          _.each(item[idsField] || [], function(id) {
+          _.each(joinr._get(item, idsField) || [], function(id) {
             if (othersById[id]) {
               if (!item[objectsField]) {
                 item[objectsField] = [];
@@ -231,7 +231,7 @@ module.exports = {
         });
         // Attach the others to the items
         _.each(others, function(other) {
-          _.each(other[idsField], function(id) {
+          _.each(joinr._get(other, idsField) || [], function(id) {
             if (itemsById[id]) {
               var item = itemsById[id];
               if (!item[objectsField]) {
@@ -246,6 +246,27 @@ module.exports = {
     } else {
       return callback(null);
     }
+  },
+
+  _has: function(o, accessor) {
+    return !!joinr._get(o, accessor);
+  },
+
+  // This supports: foo, foo.bar, foo.bar.baz (dot notation,
+  // like mongodb) and also passing in a custom accessor function
+
+  _get: function(o, accessor) {
+    var fn = accessor;
+    if (typeof(accessor) === 'string') {
+      fn = function(o) {
+        var keys = accessor.split(/\./);
+        _.each(keys, function(key) {
+          o = o[key];
+        });
+        return o;
+      };
+    }
+    return fn(o);
   }
 };
 

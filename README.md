@@ -123,7 +123,7 @@ The callback receives an error object if any.
 #### Example
 
     joinr.byArray(users, 'groupIds', '_groups', function(ids, callback) {
-      return groupsCollection.find({ groupIds: { $in: ids } }, callback);
+      return groupsCollection.find({ _id: { $in: ids } }, callback);
     }, callback);
 
 ### joinr.byArrayReverse
@@ -159,6 +159,37 @@ The callback receives an error, if any.
     joinr.byArrayReverse(groups, 'groupIds', '_users', function(ids, callback) {
       return usersCollection.find({ placeIds: { $in: ids } }, callback);
     }, callback);
+
+## Accessing Nested Properties With Dot Notation
+
+If you have departments and the IDs of the people are stored in a nested property, like this:
+
+    {
+      name: 'Chemistry',
+      settings: {
+        personIds: [ 5, 7, 9 ]
+      }
+    }
+
+Then you may use that property with joinr by writing this:
+
+    joinr.byArray(departments, 'settings.personIds', 'people', function(ids, callback) {
+      return peopleCollection.find({ _id: { $in: ids } }, callback);
+    }, callback);
+
+Note the use of `settings.personIds`.
+
+You may nest properties as deeply as desired.
+
+You may also pass a function that returns the desired property of any object passed to it.
+
+This feature is available for the `idField` and `idsField` options only. It is not currently possible to store the results in a nested property. Of course you could easily move them there after using `joinr`.
+
+This syntax is identical to that supported by MongoDB for the same purpose.
+
+## Changelog
+
+Version 0.1.1 of `joinr` added support for dot notation when specifying `idField` and `idsField`.
 
 ## About P'unk Avenue and Apostrophe
 

@@ -69,6 +69,32 @@ var users = [
   }
 ];
 
+var dotNotationUsers = [
+  {
+    _id: 'jane',
+    settings: {
+      groupIds: [ 'admins' ]
+    }
+  },
+  {
+    _id: 'joe',
+    settings: {
+      groupIds: [ 'marketing', 'editors' ]
+    }
+  },
+  {
+    _id: 'jack',
+    settings: {
+      groupIds: [ 'editors' ]
+    }
+  },
+  {
+    _id: 'jherek',
+    settings: {
+    }
+  }
+];
+
 describe('joinr', function() {
   describe('byOne()', function() {
     var testEvents = [];
@@ -165,6 +191,37 @@ describe('joinr', function() {
         return setImmediate(function() {
           return callback(null, _.filter(users, function(user) {
             return !!_.intersection(user.groupIds, ids).length;
+          }));
+        });
+      }, function(err) {
+        assert(!err);
+        return callback(null);
+      });
+    });
+    it('returns the correct users for groups', function() {
+      var editors = _.find(testGroups, function(group) {
+        return group._id === 'editors';
+      });
+      assert(editors);
+      assert(editors._users);
+      assert(editors._users.length === 2);
+      assert(_.find(editors._users, function(user) {
+        return user._id === 'joe';
+      }));
+      assert(_.find(editors._users, function(user) {
+        return user._id === 'jack';
+      }));
+    });
+  });
+  describe('byArrayReverse() with dot notation', function() {
+    var testGroups = [];
+    // Copy the test data so we don't permanently modify it
+    extend(true, testGroups, groups);
+    it('replies without error', function(callback) {
+      return joinr.byArrayReverse(testGroups, 'settings.groupIds', '_users', function(ids, callback) {
+        return setImmediate(function() {
+          return callback(null, _.filter(dotNotationUsers, function(user) {
+            return !!_.intersection(user.settings.groupIds, ids).length;
           }));
         });
       }, function(err) {
