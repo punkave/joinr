@@ -1,6 +1,6 @@
 {
   "name": "joinr",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Joins related documents efficiently with MongoDB and compatible databases",
   "main": "index.js",
   "scripts": {
