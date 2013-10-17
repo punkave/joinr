@@ -6,7 +6,9 @@
 
 `joinr` allows joins to be performed via IDs stored in a regular property (`byOne`) or in an array property (`byArray`). Joins can be performed when the ID of the related document is in the document you already have (`byOne` or `byArray`) and also when the related documents contain the IDs of documents you already have (`byOneReverse` and `byArrayReverse`).
 
-`joinr` emphasizes performance. Fetch the relevant documents first; that gives you a chance to `limit` the results. Then use `joinr` to fetch related documents with a single MongoDB query.
+`joinr` can also fetch information about the relationship between two objects. For instance, if each person can work for several departments and must have a separate job title in each department, `joinr` can handle that without the need for a third MongoDB collection.
+
+`joinr` emphasizes performance. Fetch the relevant documents first; that gives you a chance to `limit` the results. Then use `joinr` to fetch related documents with a single MongoDB query. If the same object is related to several other objects, they will all refer to the same copy to save memory.
 
 ## Installation
 
@@ -108,21 +110,50 @@ The first argument should be an array of documents already fetched.
 The second argument is the array property in each of those documents that
 identifies related documents (for instance, `groupIds`).
 
-The third argument is the array property name in which to store the related
+The optional third argument is the name of an object property in each of
+those documents that describes the relationship between the document and each
+of the related documents. This object is expected to be structured like this:
+
+    personRelationships: {
+      idOfPerson1: {
+        jobTitle: 'Chief Cook'
+      },
+      idOfPerson2: {
+        jobTitle: 'Chief Bottle Washer'
+      }
+    }
+
+The fourth argument is the array property name in which to store the related
 documents after fetching them (for instance, `_groups`).
 
-The fourth argument is the function to call to fetch the related documents.
-This function will receive an array of IDs and a callback.
+The fifth argument is the function to call to fetch the related documents.
+This function will receive an array of IDs and a callback. This function should invoke its callback with an error, if any, and if no error, an array of retrieved documents.
 
-The fifth argument is the callback, which will receive an error if any.
+The final argument is the main callback, which will receive an error if any.
 The related documents will be attached directly to the items under the
 property name specified by objectsField, so there is no need to return values.
 
-The callback receives an error object if any.
+*If the relationshipsField argument is present*, then the related documents are
+not attached directly in the array property. Instead each entry of the array
+is an object with two properties, `item` and `relationship`. The `item`
+property points to the actual object, and the `relationship` property points
+to the relationship data for that object. For instance:
+
+person._groups[0].item.name <-- Group's name
+person._groups[0].relationship.jobTitle <-- Person's job title in
+  this specific department; they may have other titles in other departments
+
+The main callback receives an error object if any.
 
 #### Example
 
     joinr.byArray(users, 'groupIds', '_groups', function(ids, callback) {
+      return groupsCollection.find({ _id: { $in: ids } }, callback);
+    }, callback);
+
+Or:
+
+    joinr.byArray(users, 'groupIds', 'groupRelationships', '_groups', function(ids, callback) {
       return groupsCollection.find({ _id: { $in: ids } }, callback);
     }, callback);
 
@@ -141,18 +172,31 @@ The second argument is the array property in each of the related documents
 that identifies documents in your original collection (for instance,
 `groupIds`).
 
-The third argument is the array property name in which to store the related
+The optional third argument is the name of an object property in each of
+those documents that describes the relationship between the document and each
+of the related documents. This object is expected to be structured like this:
+
+    personRelationships: {
+      idOfPerson1: {
+        jobTitle: 'Chief Cook'
+      },
+      idOfPerson2: {
+        jobTitle: 'Chief Bottle Washer'
+      }
+    }
+
+The fourth argument is the array property name in which to store the related
 documents after fetching them (for instance, `_users`).
 
-The fourth argument is the function to call to fetch the related documents.
+The fifth argument is the function to call to fetch the related documents.
 This function will receive an array of IDs referring to documents in
-your original collection, and a callback.
+your original collection, and a callback. This function should invoke its callback with an error if any, and if no error, an array of retrieved documents.
 
-The fifth argument is the callback, which will receive an error if any.
+The sixth argument is the main callback, which will receive an error if any.
 The related documents will be attached directly to the items under the
 property name specified by objectsField, so there is no need to return values.
 
-The callback receives an error, if any.
+The main callback receives an error, if any.
 
 #### Example
 
@@ -183,12 +227,13 @@ You may nest properties as deeply as desired.
 
 You may also pass a function that returns the desired property of any object passed to it.
 
-This feature is available for the `idField` and `idsField` options only. It is not currently possible to store the results in a nested property. Of course you could easily move them there after using `joinr`.
+This feature is available for the `idField`, `idsField` and `relationshipsField` options only. It is not currently possible to store the results in a nested property. Of course you could easily move them there after using `joinr`.
 
 This syntax is identical to that supported by MongoDB for the same purpose.
 
 ## Changelog
 
+Version 0.1.2 of `joinr` added support for relationship properties via the `relationshipsField` option to `joinByArray` and `joinByArrayReverse`. This allows, for instance, employees to have separate job titles in each of the departments they are associated with.
 Version 0.1.1 of `joinr` added support for dot notation when specifying `idField` and `idsField`.
 
 ## About P'unk Avenue and Apostrophe

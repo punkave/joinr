@@ -54,15 +54,29 @@ var groups = [
 var users = [
   {
     _id: 'jane',
-    groupIds: [ 'admins' ]
+    groupIds: [ 'admins' ],
+    groupRelationships: {
+      admins: {
+        jobTitle: 'Computer Vizier'
+      }
+    }
   },
   {
     _id: 'joe',
-    groupIds: [ 'marketing', 'editors' ]
+    groupIds: [ 'marketing', 'editors' ],
+    groupRelationships: {
+      marketing: {
+        jobTitle: 'Seller of the Things'
+      },
+      editors: {
+        jobTitle: 'Prince of Documentia'
+      }
+    }
   },
   {
     _id: 'jack',
     groupIds: [ 'editors' ]
+    // groupRelationships being missing should not cause a crash
   },
   {
     _id: 'jherek'
@@ -181,6 +195,42 @@ describe('joinr', function() {
         return group._id === 'editors';
       }));
     });
+    it('replies without error when invoked with a relationshipsField', function(callback) {
+      // Clean up from previous test
+      _.each(testUsers, function(user) {
+        delete user._groups;
+      });
+      return joinr.byArray(testUsers, 'groupIds', 'groupRelationships', '_groups', function(ids, callback) {
+        return setImmediate(function() {
+          return callback(null, _.filter(groups, function(group) {
+            return _.contains(ids, group._id);
+          }));
+        });
+      }, function(err) {
+        assert(!err);
+        return callback(null);
+      });
+    });
+    it('returns the correct job titles per group for users', function() {
+      var joe = _.find(testUsers, function(user) {
+        return user._id === 'joe';
+      });
+      assert(joe);
+      assert(joe._groups);
+      assert(joe._groups.length === 2);
+      assert(_.find(joe._groups, function(group) {
+        return group.item._id === 'marketing';
+      }));
+      assert(_.find(joe._groups, function(group) {
+        return group.item._id === 'editors';
+      }));
+      assert(_.find(joe._groups, function(group) {
+        return group.relationship.jobTitle === 'Seller of the Things';
+      }));
+      assert(_.find(joe._groups, function(group) {
+        return group.relationship.jobTitle === 'Prince of Documentia';
+      }));
+    });
   });
   describe('byArrayReverse()', function() {
     var testGroups = [];
@@ -210,6 +260,44 @@ describe('joinr', function() {
       }));
       assert(_.find(editors._users, function(user) {
         return user._id === 'jack';
+      }));
+    });
+    it('replies without error when invoked with a relationships field', function(callback) {
+      // Clean up from previous test
+      _.each(testGroups, function(group) {
+        delete group._users;
+      });
+      return joinr.byArrayReverse(testGroups, 'groupIds', 'groupRelationships', '_users', function(ids, callback) {
+        return setImmediate(function() {
+          return callback(null, _.filter(users, function(user) {
+            return !!_.intersection(user.groupIds, ids).length;
+          }));
+        });
+      }, function(err) {
+        assert(!err);
+        return callback(null);
+      });
+    });
+    it('returns the correct job titles per user for a group', function() {
+      var editors = _.find(testGroups, function(group) {
+        return group._id === 'editors';
+      });
+      assert(editors);
+      assert(editors._users);
+      assert(editors._users.length === 2);
+      assert(_.find(editors._users, function(user) {
+        return user.item._id === 'joe';
+      }));
+      assert(_.find(editors._users, function(user) {
+        return user.item._id === 'jack';
+      }));
+      assert(_.find(editors._users, function(user) {
+        return (user.item._id === 'joe') && (user.relationship.jobTitle === 'Prince of Documentia');
+      }));
+      assert(_.find(editors._users, function(user) {
+        // This should not crash, because an empty relationship object should
+        // always be supplied if the group does not appear in groupRelationships
+        return user.relationship.jobTitle === undefined;
       }));
     });
   });

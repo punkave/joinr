@@ -129,18 +129,42 @@ var joinr = module.exports = {
   //
   // The first argument should be an array of documents already fetched.
   //
-  // The second argument is the array property in each of those documents that
-  // identifies related documents (for instance, groupIds).
+  // The second argument is the name of an array property in each of those documents
+  // that identifies related documents by id (for instance, groupIds).
   //
-  // The third argument is the array property name in which to store the related
+  // The optional third argument is the name of an object property in each of
+  // those documents that describes the relationship between the document and each
+  // of the related documents. This object is expected to be structured like this:
+  //
+  // personRelationships: {
+  //   idOfPerson1: {
+  //     jobTitle: 'Chief Cook'
+  //   },
+  //   idOfPerson2: {
+  //     jobTitle: 'Chief Bottle Washer'
+  //   }
+  // }
+  //
+  // The fourth argument is the array property name in which to store the related
   // documents after fetching them (for instance, _groups).
   //
-  // The fourth argument is the function to call to fetch the related documents.
+  // The fifth argument is the function to call to fetch the related documents.
   // This function will receive an array of IDs and a callback.
   //
-  // The fifth argument is the callback, which will receive an error if any.
+  // The sixth argument is the callback, which will receive an error if any.
   // The related documents will be attached directly to the items under the
-  // property name specified by objectsField, so there is no need to return values.
+  // array property name specified by objectsField, so there is no need to return
+  // values.
+  //
+  // *If the relationshipsField argument is present*, then the related documents are
+  // not attached directly in the array property. Instead each entry of the array
+  // is an object with two properties, `item` and `relationship`. The `item`
+  // property points to the actual object, and the `relationship` property points
+  // to the relationship data for that object. For instance:
+  //
+  // group._people[0].item.name <-- Person's name
+  // group._people[0].relationship.jobTitle <-- Person's job title in
+  //   this specific department; they may have other titles in other departments
   //
   // The callback receives an error object if any.
   //
@@ -150,7 +174,14 @@ var joinr = module.exports = {
   //   return groupsCollection.find({ groupIds: { $in: ids } }, callback);
   // }, callback);
 
-  byArray: function(items, idsField, objectsField, getter, callback) {
+  byArray: function(items, idsField, relationshipsField, objectsField, getter, callback) {
+    if (arguments.length === 5) {
+      // Allow relationshipsField to be skipped
+      callback = getter;
+      getter = objectsField;
+      objectsField = relationshipsField;
+      relationshipsField = undefined;
+    }
     var otherIds = [];
     var othersById = {};
     _.each(items, function(item) {
@@ -174,7 +205,15 @@ var joinr = module.exports = {
               if (!item[objectsField]) {
                 item[objectsField] = [];
               }
-              item[objectsField].push(othersById[id]);
+              if (relationshipsField) {
+                var relationships = joinr._get(item, relationshipsField) || {};
+                item[objectsField].push({
+                  item: othersById[id],
+                  relationship: relationships[id] || {}
+                });
+              } else {
+                item[objectsField].push(othersById[id]);
+              }
             }
           });
         });
@@ -198,16 +237,40 @@ var joinr = module.exports = {
   // that identifies documents in your original collection (for instance,
   // groupIds).
   //
-  // The third argument is the array property name in which to store the related
+  // The optional third argument is the name of an object property in each of
+  // thoe related documents that describes the relationship between the related
+  // document and each of your documents. This object is expected to be structured
+  // like this:
+  //
+  // personRelationships: {
+  //   idOfPerson1: {
+  //     jobTitle: 'Chief Cook'
+  //   },
+  //   idOfPerson2: {
+  //     jobTitle: 'Chief Bottle Washer'
+  //   }
+  // }
+  //
+  // The fourth argument is the array property name in which to store the related
   // documents after fetching them (for instance, _users).
   //
-  // The fourth argument is the function to call to fetch the related documents.
+  // The fifth argument is the function to call to fetch the related documents.
   // This function will receive an array of IDs referring to documents in
   // your original collection, and a callback.
   //
-  // The fifth argument is the callback, which will receive an error if any.
+  // The sixth argument is the callback, which will receive an error if any.
   // The related documents will be attached directly to the items under the
   // property name specified by objectsField, so there is no need to return values.
+  //
+  // *If the relationshipsField argument is present*, then the related documents are
+  // not attached directly in the array property. Instead each entry of the array
+  // is an object with two properties, `item` and `relationship`. The `item`
+  // property points to the actual object, and the `relationship` property points
+  // to the relationship data for that object. For instance:
+  //
+  // group._people[0].item.name <-- Person's name
+  // group._people[0].relationship.jobTitle <-- Person's job title in
+  //   this specific department; they may have other titles in other departments
   //
   // The callback receives an error object if any.
   //
@@ -217,7 +280,14 @@ var joinr = module.exports = {
   //   return usersCollection.find({ placeIds: { $in: ids } }, callback);
   // }, callback);
 
-  byArrayReverse: function(items, idsField, objectsField, getter, callback) {
+  byArrayReverse: function(items, idsField, relationshipsField, objectsField, getter, callback) {
+    if (arguments.length === 5) {
+      // Allow relationshipsField to be skipped
+      callback = getter;
+      getter = objectsField;
+      objectsField = relationshipsField;
+      relationshipsField = undefined;
+    }
     var itemIds = _.pluck(items, '_id');
     if (itemIds.length) {
       return getter(itemIds, function(err, others) {
@@ -237,7 +307,15 @@ var joinr = module.exports = {
               if (!item[objectsField]) {
                 item[objectsField] = [];
               }
-              item[objectsField].push(other);
+              if (relationshipsField) {
+                var relationships = joinr._get(other, relationshipsField) || {};
+                item[objectsField].push({
+                  item: other,
+                  relationship: relationships[item._id] || {}
+                });
+              } else {
+                item[objectsField].push(other);
+              }
             }
           });
         });
