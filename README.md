@@ -233,6 +233,8 @@ This syntax is identical to that supported by MongoDB for the same purpose.
 
 ## Changelog
 
+Version 0.1.3 throws a meaningful error rather than a confusing one if `undefined` is passed for `idField` or `idsField` (most likely to happen because that property was left out when configuring an Apostrophe site).
+
 Version 0.1.2 of `joinr` added support for relationship properties via the `relationshipsField` option to `joinByArray` and `joinByArrayReverse`. This allows, for instance, employees to have separate job titles in each of the departments they are associated with.
 Version 0.1.1 of `joinr` added support for dot notation when specifying `idField` and `idsField`.
 

@@ -327,6 +327,9 @@ var joinr = module.exports = {
   },
 
   _has: function(o, accessor) {
+    if (accessor === undefined) {
+      throw new Error('I think you forgot to set idField or idsField, or you set the wrong one (use idField for byOne, idsField for byArray)');
+    }
     return !!joinr._get(o, accessor);
   },
 
@@ -334,6 +337,9 @@ var joinr = module.exports = {
   // like mongodb) and also passing in a custom accessor function
 
   _get: function(o, accessor) {
+    if (accessor === undefined) {
+      throw new Error('I think you forgot to set idField or idsField, or you set the wrong one (use idField for byOne, idsField for byArray)');
+    }
     var fn = accessor;
     if (typeof(accessor) === 'string') {
       fn = function(o) {
