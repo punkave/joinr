@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('lodash');
 
 var joinr = module.exports = {
   // Perform a one-to-one join with related documents.

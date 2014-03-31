@@ -1,7 +1,7 @@
 var joinr = require('../index.js');
 var assert = require("assert");
 var extend = require('extend');
-var _ = require('underscore');
+var _ = require('lodash');
 
 // Test data. We don't need actual Mongo to thoroughly test this, we
 // just need Mongo-like data and getters for it
