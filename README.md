@@ -23,7 +23,7 @@ Tip: we recommend `--save` so that `joinr` is automatically added to your `packa
     // Fetch events, then join them with places
     eventsCollection.find({ ... }, function(err, events) {
       joinr.oneToOne(events, 'placeId', '_place', function(ids, callback) {
-        return eventsCollection.find({ _id: { $in: ids } }, callback);
+        return eventsCollection.find({ _id: { $in: ids } }).toArray(callback);
       }, function(err) {
         // Do something with your events now that they have their
         // related place in a ._place property
@@ -93,7 +93,7 @@ property name `objectField`, so there is no need to return values.
 #### Example
 
     joinr.byOneReverse(places, 'placeId', '_place', function(ids, callback) {
-      return eventsCollection.find({ placeId: { $in: ids } }, callback);
+      return eventsCollection.find({ placeId: { $in: ids } }).toArray(callback);
     }, callback);
 
 ### joinr.byArray
@@ -148,13 +148,13 @@ The main callback receives an error object if any.
 #### Example
 
     joinr.byArray(users, 'groupIds', '_groups', function(ids, callback) {
-      return groupsCollection.find({ _id: { $in: ids } }, callback);
+      return groupsCollection.find({ _id: { $in: ids } }).toArray(callback);
     }, callback);
 
 Or:
 
     joinr.byArray(users, 'groupIds', 'groupRelationships', '_groups', function(ids, callback) {
-      return groupsCollection.find({ _id: { $in: ids } }, callback);
+      return groupsCollection.find({ _id: { $in: ids } }).toArray(callback);
     }, callback);
 
 ### joinr.byArrayReverse
@@ -201,7 +201,7 @@ The main callback receives an error, if any.
 #### Example
 
     joinr.byArrayReverse(groups, 'groupIds', '_users', function(ids, callback) {
-      return usersCollection.find({ placeIds: { $in: ids } }, callback);
+      return usersCollection.find({ placeIds: { $in: ids } }).toArray(callback);
     }, callback);
 
 ## Accessing Nested Properties With Dot Notation
@@ -218,7 +218,7 @@ If you have departments and the IDs of the people are stored in a nested propert
 Then you may use that property with joinr by writing this:
 
     joinr.byArray(departments, 'settings.personIds', 'people', function(ids, callback) {
-      return peopleCollection.find({ _id: { $in: ids } }, callback);
+      return peopleCollection.find({ _id: { $in: ids } }).toArray(callback);
     }, callback);
 
 Note the use of `settings.personIds`.
@@ -232,6 +232,10 @@ This feature is available for the `idField`, `idsField` and `relationshipsField`
 This syntax is identical to that supported by MongoDB for the same purpose.
 
 ## Changelog
+
+Version 1.0.0 has no feature changes; it's been stable a long time, so we declared it so. Examples in the documentation now correctly invoke toArray().
+
+Versions 0.1.4 through 0.1.6 switched over from underscore to lodash.
 
 Version 0.1.3 throws a meaningful error rather than a confusing one if `undefined` is passed for `idField` or `idsField` (most likely to happen because that property was left out when configuring an Apostrophe site).
 
