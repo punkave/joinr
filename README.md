@@ -22,7 +22,7 @@ Tip: we recommend `--save` so that `joinr` is automatically added to your `packa
 
     // Fetch events, then join them with places
     eventsCollection.find({ ... }, function(err, events) {
-      joinr.oneToOne(events, 'placeId', '_place', function(ids, callback) {
+      joinr.byOne(events, 'placeId', '_place', function(ids, callback) {
         return eventsCollection.find({ _id: { $in: ids } }).toArray(callback);
       }, function(err) {
         // Do something with your events now that they have their
