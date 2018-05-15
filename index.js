@@ -89,7 +89,7 @@ var joinr = module.exports = {
   // }, callback);
 
   byOneReverse: function(items, idField, objectsField, getter, callback) {
-    var itemIds = _.pluck(items, '_id');
+    var itemIds = _.map(items, '_id');
     if (itemIds.length) {
       return getter(itemIds, function(err, others) {
         if (err) {
@@ -288,7 +288,7 @@ var joinr = module.exports = {
       objectsField = relationshipsField;
       relationshipsField = undefined;
     }
-    var itemIds = _.pluck(items, '_id');
+    var itemIds = _.map(items, '_id');
     if (itemIds.length) {
       return getter(itemIds, function(err, others) {
         if (err) {

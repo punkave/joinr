@@ -233,6 +233,8 @@ This syntax is identical to that supported by MongoDB for the same purpose.
 
 ## Changelog
 
+Version 1.0.2 updates `lodash` to version 4 and `mocha` to version 5 to satisfy `npm audit`.
+
 Version 1.0.1 corrects an error in the documentation examples. No code changes.
 
 Version 1.0.0 has no feature changes; it's been stable a long time, so we declared it so. Examples in the documentation now correctly invoke toArray().

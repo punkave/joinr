@@ -1,6 +1,6 @@
 {
   "name": "joinr",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Joins related documents efficiently with MongoDB and compatible databases",
   "main": "index.js",
   "scripts": {
@@ -18,11 +18,9 @@
   "author": "P'unk Avenue",
   "license": "MIT",
   "devDependencies": {
-    "mocha": "~1.12.0",
-    "extend": "~1.1.3",
-    "assert": "~0.4.9"
+    "mocha": "^5.0.0"
   },
   "dependencies": {
-    "lodash": "2.4.x"
+    "lodash": "^4.0.0"
   }
 }

@@ -118,7 +118,7 @@ describe('joinr', function() {
       return joinr.byOne(testEvents, 'placeId', '_place', function(ids, callback) {
         return setImmediate(function() {
           return callback(null, _.filter(places, function(place) {
-            return _.contains(ids, place._id);
+            return _.includes(ids, place._id);
           }));
         });
       }, function(err) {
@@ -142,7 +142,7 @@ describe('joinr', function() {
       return joinr.byOneReverse(testPlaces, 'placeId', '_events', function(ids, callback) {
         return setImmediate(function() {
           return callback(null, _.filter(events, function(event) {
-            return _.contains(ids, event.placeId);
+            return _.includes(ids, event.placeId);
           }));
         });
       }, function(err) {
@@ -173,7 +173,7 @@ describe('joinr', function() {
       return joinr.byArray(testUsers, 'groupIds', '_groups', function(ids, callback) {
         return setImmediate(function() {
           return callback(null, _.filter(groups, function(group) {
-            return _.contains(ids, group._id);
+            return _.includes(ids, group._id);
           }));
         });
       }, function(err) {
@@ -203,7 +203,7 @@ describe('joinr', function() {
       return joinr.byArray(testUsers, 'groupIds', 'groupRelationships', '_groups', function(ids, callback) {
         return setImmediate(function() {
           return callback(null, _.filter(groups, function(group) {
-            return _.contains(ids, group._id);
+            return _.includes(ids, group._id);
           }));
         });
       }, function(err) {
